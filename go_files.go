@@ -18,7 +18,7 @@ func NewPostsFromFS(filesystem fs.FS) ([]Post, error) {
 	var posts []Post
 
 	for _, f := range dir {
-		post, err := getPost(filesystem, f)
+		post, err := getPost(filesystem, f.Name())
 		if err != nil {
 			return nil, err // needs clarification: should we totally fail if one file fails, or just ignore?
 		}
@@ -27,8 +27,8 @@ func NewPostsFromFS(filesystem fs.FS) ([]Post, error) {
 	return posts, nil
 }
 
-func getPost(filesystem fs.FS, f fs.DirEntry) (Post, error) {
-	postFile, err := filesystem.Open(f.Name())
+func getPost(filesystem fs.FS, fileName string) (Post, error) {
+	postFile, err := filesystem.Open(fileName)
 	if err != nil {
 		return Post{}, err
 	}
@@ -37,7 +37,7 @@ func getPost(filesystem fs.FS, f fs.DirEntry) (Post, error) {
 
 }
 
-func newPost(postFile fs.File) (Post, error) {
+func newPost(postFile io.Reader) (Post, error) {
 	postData, err := io.ReadAll(postFile)
 	if err != nil {
 		return Post{}, err
